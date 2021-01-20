@@ -1,5 +1,5 @@
 package fastsocks
 
-type Cipher Struct {
-
+// Cipher 编码与解码结构体
+type Cipher struct {
 }
