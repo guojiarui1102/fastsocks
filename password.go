@@ -30,3 +30,16 @@ func ParsePassword(pwString string) ([]byte, error) {
 	copy(pw, bs)
 	return pw, nil
 }
+
+// RandPassword 产生一个随机密码
+func RandPassword() string {
+	intArr := rand.Perm(passwordLength)
+	pw := &password{}
+	for i, v := range intArr {
+		pw[i] = byte(v)
+		if i == v {
+			return RandPassword()
+		}
+	}
+	return pw.toString()
+}
