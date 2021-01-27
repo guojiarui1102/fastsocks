@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/binary"
 	"net"
 
 	"github.com/guojiarui1102/fastsocks"
@@ -42,5 +43,45 @@ func (fsServer *FsServer) handleConn(localConn *fastsocks.SecureTCPConn) {
 	if err != nil || buf[0] != 0x05 {
 		return
 	}
-	//...
+	localConn.EncodeWrite([]byte{0x05, 0x00})
+
+	n, err := localConn.DecodeRead(buf)
+	if err != nil || n < 7 {
+		return
+	}
+
+	if buf[1] != 0x01 {
+		return
+	}
+
+	var dIP []byte
+	switch buf[3] {
+	case 0x01:
+		dIP = buf[4 : 4+net.IPv4len]
+	case 0x03:
+		ipAddr, err := net.ResolveIPAddr("ip", string(buf[5:n-2]))
+		if err != nil {
+			return
+		}
+		dIP = ipAddr.IP
+	case 0x04:
+		dIP = buf[4 : 4+net.IPv6len]
+	default:
+		return
+	}
+	dPort := buf[n-2:]
+	dstAddr := &net.TCPAddr{
+		IP:   dIP,
+		Port: int(binary.BigEndian.Uint16(dPort)),
+	}
+
+	dstServer, err := net.DialTCP("tcp", nil, dstAddr)
+	if err != nil {
+		return
+	} else {
+		defer dstServer.Close()
+		dstServer.SetLinger(0)
+
+		localConn.EncodeWrite([]byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
+	}
 }
