@@ -21,14 +21,14 @@ func (pw *password) toString() string {
 }
 
 // ParsePassword 解析获取密码
-func ParsePassword(pwString string) ([]byte, error) {
+func ParsePassword(pwString string) (*password, error) {
 	bs, err := base64.StdEncoding.DecodeString(strings.TrimSpace(pwString))
 	if err != nil || len(bs) != passwordLength {
 		return nil, errors.New("不符合规定的密码")
 	}
-	var pw []byte
-	copy(pw, bs)
-	return pw, nil
+	pw := password{}
+	copy(pw[:], bs)
+	return &pw, nil
 }
 
 // RandPassword 产生一个随机密码
