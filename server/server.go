@@ -92,7 +92,7 @@ func (fsServer *FsServer) handleConn(localConn *fastsocks.SecureTCPConn) {
 			dstServer.Close()
 		}
 	}()
-	(&lightsocks.SecureTCPConn{
+	(&fastsocks.SecureTCPConn{
 		Cipher:          localConn.Cipher,
 		ReadWriteCloser: dstServer,
 	}).EncodeCopy(localConn)
