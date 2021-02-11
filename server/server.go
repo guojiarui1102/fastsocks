@@ -84,4 +84,16 @@ func (fsServer *FsServer) handleConn(localConn *fastsocks.SecureTCPConn) {
 
 		localConn.EncodeWrite([]byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
 	}
+
+	go func() {
+		err := localConn.DecodeCopy(dstServer)
+		if err != nil {
+			localConn.Close()
+			dstServer.Close()
+		}
+	}()
+	(&lightsocks.SecureTCPConn{
+		Cipher: localConn.Cipher,
+		ReadWriteCloser: dstServer,
+	}).EncodeCopy(localConn)
 }
