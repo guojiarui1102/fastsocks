@@ -30,7 +30,7 @@ func NewFsServer(pw string, listenAddr string) (*FsServer, error) {
 }
 
 // Listen 监听客户端请求
-func (fsServer *FsServer) listen(didListen func(listenAddr *net.TCPAddr)) error {
+func (fsServer *FsServer) Listen(didListen func(listenAddr *net.TCPAddr)) error {
 	return fastsocks.ListenEncryptedTCP(fsServer.ListenAddr, fsServer.Cipher, fsServer.handleConn, didListen)
 }
 
