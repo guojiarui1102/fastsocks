@@ -9,6 +9,7 @@ import (
 	"github.com/guojiarui1102/fastsocks/src"
 )
 
+// DefaultListenAddr 默认端口7448
 const (
 	DefaultListenAddr = ":7448"
 )
@@ -24,11 +25,11 @@ func main() {
 	config.ReadConfig()
 	config.SaveConfig()
 
-	lsLocal, err := local.NewLsLocal(config.Password, config.ListenAddr, config.RemoteAddr)
+	fsLocal, err := local.NewFsLocal(config.Password, config.ListenAddr, config.RemoteAddr)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	log.Fatalln(lsLocal.Listen(func(listenAddr *net.TCPAddr) {
+	log.Fatalln(fsLocal.Listen(func(listenAddr *net.TCPAddr) {
 		log.Println(fmt.Sprintf(`fastsocks-local: %s 启动成功，配置:
 		本地监听地址:
 		%s
