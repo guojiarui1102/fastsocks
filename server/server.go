@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/binary"
+	"fmt"
 	"net"
 
 	"github.com/guojiarui1102/fastsocks"
@@ -17,10 +18,12 @@ type FsServer struct {
 func NewFsServer(pw string, listenAddr string) (*FsServer, error) {
 	bsPw, err := fastsocks.ParsePassword(pw)
 	if err != nil {
+		fmt.Printf("parse password failed, %s", err)
 		return nil, err
 	}
 	structListenAddr, err := net.ResolveTCPAddr("tcp", listenAddr)
 	if err != nil {
+		fmt.Printf("resolve tcp addr failed, %s", err)
 		return nil, err
 	}
 	return &FsServer{
@@ -41,12 +44,14 @@ func (fsServer *FsServer) handleConn(localConn *fastsocks.SecureTCPConn) {
 
 	_, err := localConn.DecodeRead(buf)
 	if err != nil || buf[0] != 0x05 {
+		fmt.Printf("decode failed, %s", err)
 		return
 	}
 	localConn.EncodeWrite([]byte{0x05, 0x00})
 
 	n, err := localConn.DecodeRead(buf)
 	if err != nil || n < 7 {
+		fmt.Printf("decode failed, %s", err)
 		return
 	}
 
@@ -61,6 +66,7 @@ func (fsServer *FsServer) handleConn(localConn *fastsocks.SecureTCPConn) {
 	case 0x03:
 		ipAddr, err := net.ResolveIPAddr("ip", string(buf[5:n-2]))
 		if err != nil {
+			fmt.Printf("resolve ip addr failed, %s", err)
 			return
 		}
 		dIP = ipAddr.IP
@@ -77,6 +83,7 @@ func (fsServer *FsServer) handleConn(localConn *fastsocks.SecureTCPConn) {
 
 	dstServer, err := net.DialTCP("tcp", nil, dstAddr)
 	if err != nil {
+		fmt.Printf("dial tcp failed, %s", err)
 		return
 	} else {
 		defer dstServer.Close()
@@ -88,6 +95,7 @@ func (fsServer *FsServer) handleConn(localConn *fastsocks.SecureTCPConn) {
 	go func() {
 		err := localConn.DecodeCopy(dstServer)
 		if err != nil {
+			fmt.Printf("decode copy failed, %s", err)
 			localConn.Close()
 			dstServer.Close()
 		}

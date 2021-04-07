@@ -1,6 +1,7 @@
 package local
 
 import (
+	"fmt"
 	"log"
 	"net"
 
@@ -16,14 +17,17 @@ type FsLocal struct {
 func NewFsLocal(password string, listenAddr, remoteAddr string) (*FsLocal, error) {
 	bsPassword, err := fastsocks.ParsePassword(password)
 	if err != nil {
+		fmt.Printf("parse password failed, %s", err)
 		return nil, err
 	}
 	structListenAddr, err := net.ResolveTCPAddr("tcp", listenAddr)
 	if err != nil {
+		fmt.Printf("resolve tcp listen addr failed, %s", err)
 		return nil, err
 	}
 	structRemoteAddr, err := net.ResolveTCPAddr("tcp", remoteAddr)
 	if err != nil {
+		fmt.Printf("resolve tcp remote addr failed, %s", err)
 		return nil, err
 	}
 	return &FsLocal{

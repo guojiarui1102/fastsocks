@@ -1,6 +1,7 @@
 package fastsocks
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net"
@@ -37,6 +38,7 @@ type SecureTCPConn struct {
 func (secureSocket *SecureTCPConn) DecodeRead(bs []byte) (n int, err error) {
 	n, err = secureSocket.Read(bs)
 	if err != nil {
+		fmt.Printf("read failed, %s", err)
 		return
 	}
 	secureSocket.Cipher.Decode(bs[:n])
@@ -104,6 +106,7 @@ func (secureSocket *SecureTCPConn) DecodeCopy(dst io.Writer) error {
 func DialEncryptedTCP(raddr *net.TCPAddr, cipher *Cipher) (*SecureTCPConn, error) {
 	remoteConn, err := net.DialTCP("tcp", nil, raddr)
 	if err != nil {
+		fmt.Printf("dial failed，%s", err)
 		return nil, err
 	}
 	remoteConn.SetLinger(0)
@@ -118,6 +121,7 @@ func DialEncryptedTCP(raddr *net.TCPAddr, cipher *Cipher) (*SecureTCPConn, error
 func ListenEncryptedTCP(laddr *net.TCPAddr, cipher *Cipher, handleConn func(localConn *SecureTCPConn), didListen func(listenAddr *net.TCPAddr)) error {
 	listener, err := net.ListenTCP("tcp", laddr)
 	if err != nil {
+		fmt.Printf("listen failed, %s", err)
 		return err
 	}
 	defer listener.Close()
